@@ -34,6 +34,14 @@
                         <label for="institution">Institución Educativa</label>
                         <input type="text" id="institution" value="I.E.P. FRANCISCO BOLOGNESI" placeholder="Ej: I.E. San Juan Bautista" required>
                     </div>
+
+                    <div class="form-group">
+                        <label for="citationType">Dirigido a:</label>
+                        <select id="citationType" required>
+                            <option value="estudiantes" selected>Cita a Estudiante(s)</option>
+                            <option value="apoderado">Cita a Padre/Madre/Apoderado</option>
+                        </select>
+                    </div>
 <div class="form-row">
                         <div class="form-group">
                             <label for="grade">Grado</label>
@@ -97,6 +105,7 @@
                     <div class="form-group">
                         <label>Plantillas Rápidas para Motivo</label>
                         <div class="quick-templates">
+                            <button type="button" class="btn-template" data-text="atención al padre de familia">Atención a Padres</button>
                             <button type="button" class="btn-template" data-text="brindar reforzamiento académico">Reforzamiento</button>
                             <button type="button" class="btn-template" data-text="realizar la recuperación pedagógica">Recuperación</button>
                             <button type="button" class="btn-template" data-text="tratar temas de tutoría">Tutoría</button>
@@ -198,18 +207,19 @@
                 <h1 class="citation-title">CITACIÓN</h1>
                 
                 <div class="citation-body">
-                    <p class="citation-paragraph">
+                    <p class="citation-paragraph" id="preview-intro-text">
                         Por medio de la presente, se cita a los siguientes estudiantes del <span id="preview-grade" class="highlight">____</span> "<span id="preview-section" class="highlight">_</span>".
                     </p>
-                    <p class="citation-paragraph">
-                        El día <span id="preview-date" class="highlight">____</span> de <span id="preview-timeStart" class="highlight">____</span> a <span id="preview-timeEnd" class="highlight">____</span>, con el fin de <span id="preview-reason" class="highlight">____</span> en el área de <span id="preview-area" class="highlight">____</span>.
-                    </p>
                     
-                    <h3 class="students-list-title">Estudiantes:</h3>
+                    <h3 class="students-list-title" id="preview-students-title">Estudiante:</h3>
                     <ol id="preview-students-list" class="students-list">
                         <!-- Lista de estudiantes -->
                         <li>Nombre del estudiante</li>
                     </ol>
+
+                    <p class="citation-paragraph" id="preview-details-text">
+                        El día <span id="preview-date" class="highlight">____</span> de <span id="preview-timeStart" class="highlight">____</span> a <span id="preview-timeEnd" class="highlight">____</span>, con el fin de <span id="preview-reason" class="highlight">____</span> en el área de <span id="preview-area" class="highlight">____</span>.
+                    </p>
                 </div>
                 
                 <div class="citation-footer">
