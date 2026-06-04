@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewTeacherName = document.getElementById('preview-teacherName');
     const previewTeacherRole = document.getElementById('preview-teacherRole');
     const previewStudentsList = document.getElementById('preview-students-list');
+    const citationTypeInput = document.getElementById('citationType');
 
     // Botones de acción
     const btnGenerate = document.getElementById('btn-generate');
@@ -86,26 +87,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listeners (Actualización en tiempo real básica)
     const inputsToWatch = [
-        { input: institutionInput, preview: previewInstitution, default: 'Institución Educativa' },
-        { input: gradeInput, preview: previewGrade, default: '____' },
-        { input: sectionInput, preview: previewSection, default: '_' },
-        { input: dateInput, preview: previewDate, default: '____', format: formatDate },
-        { input: timeStartInput, preview: previewTimeStart, default: '____', format: formatTime },
-        { input: timeEndInput, preview: previewTimeEnd, default: '____', format: formatTime },
-        { input: areaInput, preview: previewArea, default: '____' },
-        { input: reasonInput, preview: previewReason, default: '____' },
-        { input: teacherNameInput, preview: previewTeacherName, default: 'Nombre del Docente' },
-        { input: teacherRoleInput, preview: previewTeacherRole, default: 'Cargo del Docente' }
+        { input: institutionInput, previewId: 'preview-institution', default: 'Institución Educativa' },
+        { input: gradeInput, previewId: 'preview-grade', default: '____' },
+        { input: sectionInput, previewId: 'preview-section', default: '_' },
+        { input: dateInput, previewId: 'preview-date', default: '____', format: formatDate },
+        { input: timeStartInput, previewId: 'preview-timeStart', default: '____', format: formatTime },
+        { input: timeEndInput, previewId: 'preview-timeEnd', default: '____', format: formatTime },
+        { input: areaInput, previewId: 'preview-area', default: '____' },
+        { input: reasonInput, previewId: 'preview-reason', default: '____' },
+        { input: teacherNameInput, previewId: 'preview-teacherName', default: 'Nombre del Docente' },
+        { input: teacherRoleInput, previewId: 'preview-teacherRole', default: 'Cargo del Docente' }
     ];
 
-    inputsToWatch.forEach(item => {
-        item.input.addEventListener('input', () => {
+    function updateAllPreviews() {
+        inputsToWatch.forEach(item => {
             let val = item.input.value;
             if(item.format && val) {
                 val = item.format(val);
             }
-            item.preview.textContent = val || item.default;
+            const el = document.getElementById(item.previewId);
+            if (el) el.textContent = val || item.default;
+            
+            if (item.input === institutionInput) {
+                const inlineEl = document.getElementById('preview-institution-inline');
+                if (inlineEl) inlineEl.textContent = val || item.default;
+            }
         });
+    }
+
+    function updateDynamicTexts() {
+        const type = citationTypeInput.value;
+        const introEl = document.getElementById('preview-intro-text');
+        const detailsEl = document.getElementById('preview-details-text');
+
+        if (type === 'estudiantes') {
+            introEl.innerHTML = `Por medio de la presente, se cita a los siguientes estudiantes del <span id="preview-grade" class="highlight">____</span> "<span id="preview-section" class="highlight">_</span>".`;
+            detailsEl.innerHTML = `El día <span id="preview-date" class="highlight">____</span> de <span id="preview-timeStart" class="highlight">____</span> a <span id="preview-timeEnd" class="highlight">____</span>, con el fin de <span id="preview-reason" class="highlight">____</span> en el área de <span id="preview-area" class="highlight">____</span>.`;
+        } else if (type === 'apoderado') {
+            introEl.innerHTML = `SEÑOR/SEÑORA/APODERADO<br>Por la presente se hace de su conocimiento que en su calidad de padre/madre/apoderado del estudiante del <span id="preview-grade" class="highlight">____</span> "<span id="preview-section" class="highlight">_</span>":`;
+            detailsEl.innerHTML = `Deberá apersonarse a la institución educativa <strong id="preview-institution-inline" class="highlight">Institución Educativa</strong> el día <span id="preview-date" class="highlight">____</span> de <span id="preview-timeStart" class="highlight">____</span> a <span id="preview-timeEnd" class="highlight">____</span>, a fin de brindar/tratar: <span id="preview-reason" class="highlight">____</span> en el área de <span id="preview-area" class="highlight">____</span>.`;
+        }
+        updateAllPreviews();
+    }
+
+    citationTypeInput.addEventListener('change', updateDynamicTexts);
+
+    inputsToWatch.forEach(item => {
+        item.input.addEventListener('input', updateAllPreviews);
     });
 
     // Manejo de diseño
@@ -194,14 +222,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const inputs = studentsContainer.querySelectorAll('.student-input');
         
         let hasStudents = false;
+        let validStudentsCount = 0;
         inputs.forEach(input => {
             if (input.value.trim() !== '') {
                 const li = document.createElement('li');
                 li.textContent = input.value;
                 previewStudentsList.appendChild(li);
                 hasStudents = true;
+                validStudentsCount++;
             }
         });
+
+        const previewStudentsTitle = document.getElementById('preview-students-title');
+        if (previewStudentsTitle) {
+            if (validStudentsCount > 1) {
+                previewStudentsTitle.textContent = 'Estudiantes:';
+            } else {
+                previewStudentsTitle.textContent = 'Estudiante:';
+            }
+        }
 
         if (!hasStudents) {
             previewStudentsList.innerHTML = '<li style="color: #999;">Agregue estudiantes en el formulario...</li>';
@@ -210,13 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botón Generar (Fuerza actualización total)
     btnGenerate.addEventListener('click', () => {
-        inputsToWatch.forEach(item => {
-            let val = item.input.value;
-            if(item.format && val) {
-                val = item.format(val);
-            }
-            item.preview.textContent = val || item.default;
-        });
+        updateDynamicTexts();
         updateStudentsPreview();
         // Scroll hacia la vista previa en móviles
         if (window.innerWidth < 992) {
@@ -235,9 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addStudentRow();
 
             // Forzar actualización de vista previa a valores por defecto
-            inputsToWatch.forEach(item => {
-                item.preview.textContent = item.default;
-            });
+            updateDynamicTexts();
             updateStudentsPreview();
         }
     });
