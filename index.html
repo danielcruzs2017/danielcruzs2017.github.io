@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Citaciones Escolares</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- html2pdf para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- html2canvas para generar Imagen -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Flatpickr para selector de hora virtual -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body>
+    <header class="app-header no-print">
+        <div class="header-content">
+            <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            <h1>Generador de Citaciones I.E.P. Francisco Bolognesi</h1>
+        </div>
+    </header>
+
+    <main class="app-container">
+        <!-- SECCIÓN IZQUIERDA: FORMULARIO -->
+        <section class="form-section no-print">
+            <div class="form-card">
+                <h2>Datos de la Citación</h2>
+                <form id="citation-form">
+                    
+                    <div class="form-group">
+                        <label for="institution">Institución Educativa</label>
+                        <input type="text" id="institution" value="I.E.P. FRANCISCO BOLOGNESI" placeholder="Ej: I.E. San Juan Bautista" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="logo">Logo Institucional (Opcional)</label>
+                        <input type="file" id="logo" accept="image/*">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="grade">Grado</label>
+                            <select id="grade" required>
+                                <option value="" disabled selected>Seleccione</option>
+                                <option value="Primer grado">Primer grado</option>
+                                <option value="Segundo grado">Segundo grado</option>
+                                <option value="Tercer grado">Tercer grado</option>
+                                <option value="Cuarto grado">Cuarto grado</option>
+                                <option value="Quinto grado">Quinto grado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="section">Sección</label>
+                            <select id="section" required>
+                                <option value="" disabled selected>Seleccione</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date">Fecha</label>
+                            <input type="date" id="date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="timeStart">Hora Inicio</label>
+                            <input type="time" id="timeStart" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="timeEnd">Hora Fin</label>
+                            <input type="time" id="timeEnd" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="area">Área o Curso</label>
+                        <select id="area" required>
+                            <option value="" disabled selected>Seleccione el área</option>
+                            <option value="Matemática">Matemática</option>
+                            <option value="Comunicación">Comunicación</option>
+                            <option value="Inglés">Inglés</option>
+                            <option value="Arte y Cultura">Arte y Cultura</option>
+                            <option value="Ciencias Sociales">Ciencias Sociales</option>
+                            <option value="Desarrollo Personal, Ciudadanía y Cívica">Desarrollo Personal, Ciudadanía y Cívica (DPCC)</option>
+                            <option value="Educación Física">Educación Física</option>
+                            <option value="Ciencia y Tecnología">Ciencia y Tecnología</option>
+                            <option value="Educación para el Trabajo">Educación para el Trabajo</option>
+                            <option value="Tutoría">Tutoría</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Plantillas Rápidas para Motivo</label>
+                        <div class="quick-templates">
+                            <button type="button" class="btn-template" data-text="brindar reforzamiento académico">Reforzamiento</button>
+                            <button type="button" class="btn-template" data-text="realizar la recuperación pedagógica">Recuperación</button>
+                            <button type="button" class="btn-template" data-text="tratar temas de tutoría">Tutoría</button>
+                            <button type="button" class="btn-template" data-text="una reunión informativa con padres de familia">Reunión Padres</button>
+                            <button type="button" class="btn-template" data-text="coordinar una actividad extracurricular">Extracurricular</button>
+                            <button type="button" class="btn-template" data-text="tratar asuntos de carácter disciplinario">Disciplinaria</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reason">Motivo de la citación</label>
+                        <textarea id="reason" rows="2" placeholder="Ej: brindar reforzamiento académico" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="teacherName">Nombre del Docente</label>
+                        <input type="text" id="teacherName" placeholder="Ej: Nancy Pilar Cisneros Ponce" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="teacherRole">Cargo del Docente</label>
+                        <select id="teacherRole" required>
+                            <option value="" disabled selected>Seleccione el cargo</option>
+                            <option value="Docente del área">Docente del área</option>
+                            <option value="Tutor del salón">Tutor del salón</option>
+                            <option value="Docente responsable">Docente responsable</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+
+                    <hr class="divider">
+
+                    <div class="students-section">
+                        <div class="students-header">
+                            <h3>Lista de Estudiantes</h3>
+                            <button type="button" id="add-student-btn" class="btn btn-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Añadir
+                            </button>
+                        </div>
+                        <div id="students-container">
+                            <!-- Los inputs de estudiantes se insertarán aquí -->
+                        </div>
+                    </div>
+
+                    <hr class="divider">
+
+                    <div class="form-group">
+                        <label for="design-style">Estilo de Diseño</label>
+                        <select id="design-style">
+                            <option value="modern">Moderno (Fondo blanco, Inter)</option>
+                            <option value="classic">Clásico (Fondo blanco, Playfair Display)</option>
+                            <option value="standard">Estándar (Fondo blanco, Roboto)</option>
+                            <option value="pastel-blue">Azul Pastel Motivador (Fondo suave)</option>
+                            <option value="pastel-green">Verde Naturaleza (Fondo claro)</option>
+                            <option value="warm-yellow">Cálido y Amigable (Fondo amarillo claro)</option>
+                            <option value="geometric-blue">Geométrico Azul (Bordes y figuras)</option>
+                            <option value="elegant-gold">Elegante Dorado (Marcos formales)</option>
+                            <option value="creative-dots">Puntos Creativos (Fondo con trama)</option>
+                        </select>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="button" id="btn-generate" class="btn btn-primary">Generar Vista Previa</button>
+                        <button type="button" id="btn-clear" class="btn btn-danger">Limpiar</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="export-actions form-card">
+                <h3>Exportar</h3>
+                <div class="export-buttons">
+                    <button type="button" id="btn-print" class="btn btn-export">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        Imprimir
+                    </button>
+                    <button type="button" id="btn-pdf" class="btn btn-export">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        PDF
+                    </button>
+                    <button type="button" id="btn-image" class="btn btn-export">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        Imagen
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DERECHA: VISTA PREVIA -->
+        <section class="preview-section">
+            <h2 class="preview-title no-print">Vista Previa</h2>
+            
+            <div id="citation-document" class="citation-document style-modern">
+                <div class="citation-header">
+                    <img id="preview-logo" class="logo-img" src="logo.png" alt="Logo Institucional">
+                    <div class="institution-name" id="preview-institution">Institución Educativa</div>
+                </div>
+                
+                <h1 class="citation-title">CITACIÓN</h1>
+                
+                <div class="citation-body">
+                    <p class="citation-paragraph">
+                        Por medio de la presente, se cita a los siguientes estudiantes del <span id="preview-grade" class="highlight">____</span> "<span id="preview-section" class="highlight">_</span>".
+                    </p>
+                    <p class="citation-paragraph">
+                        El día <span id="preview-date" class="highlight">____</span> de <span id="preview-timeStart" class="highlight">____</span> a <span id="preview-timeEnd" class="highlight">____</span>, con el fin de <span id="preview-reason" class="highlight">____</span> en el área de <span id="preview-area" class="highlight">____</span>.
+                    </p>
+                    
+                    <h3 class="students-list-title">Estudiantes:</h3>
+                    <ol id="preview-students-list" class="students-list">
+                        <!-- Lista de estudiantes -->
+                        <li>Nombre del estudiante</li>
+                    </ol>
+                </div>
+                
+                <div class="citation-footer">
+                    <p class="signature-line">Atentamente,</p>
+                    <div class="signature-box">
+                        <div class="signature-line-border"></div>
+                        <p id="preview-teacherName" class="teacher-name">Nombre del Docente</p>
+                        <p id="preview-teacherRole" class="teacher-role">Cargo del Docente</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
