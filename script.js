@@ -1,17 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Referencias a elementos del DOM (Formulario)
     const form = document.getElementById('citation-form');
-    const institutionInput = document.getElementById('institution');
     const gradeInput = document.getElementById('grade');
     const sectionInput = document.getElementById('section');
     const dateInput = document.getElementById('date');
     const timeStartInput = document.getElementById('timeStart');
     const timeEndInput = document.getElementById('timeEnd');
     const areaInput = document.getElementById('area');
-    const reasonInput = document.getElementById('reason');
     const teacherNameInput = document.getElementById('teacherName');
-    const teacherRoleInput = document.getElementById('teacherRole');
-    const designStyleSelect = document.getElementById('design-style');
+    const teacherPhoneInput = document.getElementById('teacherPhone');
+    const citationModelInput = document.getElementById('citationModel');
+    const shiftInput = document.getElementById('shift');
 
     const studentsContainer = document.getElementById('students-container');
     const addStudentBtn = document.getElementById('add-student-btn');
@@ -27,16 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewTimeStart = document.getElementById('preview-timeStart');
     const previewTimeEnd = document.getElementById('preview-timeEnd');
     const previewArea = document.getElementById('preview-area');
-    const previewReason = document.getElementById('preview-reason');
     const previewTeacherName = document.getElementById('preview-teacherName');
-    const previewTeacherRole = document.getElementById('preview-teacherRole');
+    const previewTeacherPhone = document.getElementById('preview-teacherPhone');
     const previewStudentsList = document.getElementById('preview-students-list');
-    const citationTypeInput = document.getElementById('citationType');
 
     // Botones de acción
     const btnGenerate = document.getElementById('btn-generate');
     const btnClear = document.getElementById('btn-clear');
-    const btnPrint = document.getElementById('btn-print');
     const btnPdf = document.getElementById('btn-pdf');
     const btnImage = document.getElementById('btn-image');
 
@@ -46,25 +42,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar con un estudiante
     addStudentRow();
 
-    // Inicializar Flatpickr para selección de hora sin teclado
+
+    // Inicializar Flatpickr para selección de hora visual
     flatpickr("#timeStart", {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
-        disableMobile: false, // usa el selector nativo en celular (rueda táctil)
-        onChange: function(selectedDates, dateStr, instance) {
-            previewTimeStart.textContent = formatTime(dateStr);
-        }
+        time_24hr: true
     });
 
     flatpickr("#timeEnd", {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
-        disableMobile: false,
-        onChange: function(selectedDates, dateStr, instance) {
-            previewTimeEnd.textContent = formatTime(dateStr);
-        }
+        time_24hr: true
     });
 
     // Formateadores de fecha y hora
@@ -87,16 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listeners (Actualización en tiempo real básica)
     const inputsToWatch = [
-        { input: institutionInput, previewId: 'preview-institution', default: 'Institución Educativa' },
         { input: gradeInput, previewId: 'preview-grade', default: '____' },
         { input: sectionInput, previewId: 'preview-section', default: '_' },
         { input: dateInput, previewId: 'preview-date', default: '____', format: formatDate },
         { input: timeStartInput, previewId: 'preview-timeStart', default: '____', format: formatTime },
         { input: timeEndInput, previewId: 'preview-timeEnd', default: '____', format: formatTime },
-        { input: areaInput, previewId: 'preview-area', default: '____' },
-        { input: reasonInput, previewId: 'preview-reason', default: '____' },
-        { input: teacherNameInput, previewId: 'preview-teacherName', default: 'Nombre del Docente' },
-        { input: teacherRoleInput, previewId: 'preview-teacherRole', default: 'Cargo del Docente' }
+        { input: teacherNameInput, previewId: 'preview-teacherName', default: '' },
+        { input: teacherPhoneInput, previewId: 'preview-teacherPhone', default: '' }
     ];
 
     function updateAllPreviews() {
@@ -107,67 +95,81 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const el = document.getElementById(item.previewId);
             if (el) el.textContent = val || item.default;
-            
-            if (item.input === institutionInput) {
-                const inlineEl = document.getElementById('preview-institution-inline');
-                if (inlineEl) inlineEl.textContent = val || item.default;
-            }
         });
+        if (previewInstitution) previewInstitution.textContent = 'I.E.P. FRANCISCO BOLOGNESI';
     }
 
     function updateDynamicTexts() {
-        const type = citationTypeInput.value;
+        const area = areaInput.value;
+        const model = citationModelInput.value;
+        const shift = shiftInput.value ? shiftInput.value.toUpperCase() : 'MAÑANA';
+        const institution = 'I.E.P. FRANCISCO BOLOGNESI';
+        
+        const isMathOrComm = (area === 'Matemática' || area === 'Comunicación');
+        
+        const greetingEl = document.getElementById('preview-greeting');
         const introEl = document.getElementById('preview-intro-text');
-        const detailsEl = document.getElementById('preview-details-text');
-
-        if (type === 'estudiantes') {
-            introEl.innerHTML = `Por medio de la presente, se cita a los siguientes estudiantes del <span id="preview-grade" class="highlight">____</span> "<span id="preview-section" class="highlight">_</span>".`;
-            detailsEl.innerHTML = `El día <span id="preview-date" class="highlight">____</span> de <span id="preview-timeStart" class="highlight">____</span> a <span id="preview-timeEnd" class="highlight">____</span>, con el fin de <span id="preview-reason" class="highlight">____</span> en el área de <span id="preview-area" class="highlight">____</span>.`;
-        } else if (type === 'apoderado') {
-            introEl.innerHTML = `SEÑOR/SEÑORA/APODERADO<br>Por la presente se hace de su conocimiento que en su calidad de padre/madre/apoderado del estudiante del <span id="preview-grade" class="highlight">____</span> "<span id="preview-section" class="highlight">_</span>":`;
-            detailsEl.innerHTML = `Deberá apersonarse a la institución educativa <strong id="preview-institution-inline" class="highlight">Institución Educativa</strong> el día <span id="preview-date" class="highlight">____</span> de <span id="preview-timeStart" class="highlight">____</span> a <span id="preview-timeEnd" class="highlight">____</span>, a fin de brindar/tratar: <span id="preview-reason" class="highlight">____</span> en el área de <span id="preview-area" class="highlight">____</span>.`;
+        const actionEl = document.getElementById('preview-action-text');
+        const reasonTitleEl = document.getElementById('preview-reason-title');
+        const reasonDetailEl = document.getElementById('preview-reason-detail');
+        const shiftEl = document.getElementById('preview-shift');
+        
+        const studentsListEl = document.getElementById('preview-students-list');
+        
+        if (shiftEl) shiftEl.textContent = shift;
+        
+        if (isMathOrComm) {
+            studentsListEl.classList.remove('bg-gray');
+            studentsListEl.classList.add('bg-yellow');
+            
+            // Modelos Matemática y Comunicación
+            greetingEl.textContent = 'SEÑOR/SEÑORA/APODERADO';
+            introEl.textContent = 'POR LA PRESENTE SE HACE DE SU CONOCIMIENTO QUE SU MENOR HIJO:';
+            actionEl.innerHTML = `DEBERÁ DE APERSONARSE A LA <span id="preview-institution-inline" class="highlight-inline">${institution}</span> A FIN DE BRINDAR:`;
+            
+            if (model === 'refuerzo') {
+                reasonTitleEl.innerHTML = '<span class="fuchsia-text title-large">REFUERZO ESCOLAR EN EL ÁREA DE:</span>';
+                reasonDetailEl.innerHTML = `<div class="centered-large-text bg-yellow blue-text">${area ? area.toUpperCase() : '____'}</div>`;
+            } else if (model === 'atencion_estudiante') {
+                reasonTitleEl.innerHTML = '';
+                reasonDetailEl.innerHTML = '<div class="centered-large-text bg-yellow green-text">ATENCIÓN AL ESTUDIANTE</div>';
+            } else {
+                greetingEl.textContent = 'POR LA PRESENTE SE HACE DE SU CONOCIMIENTO QUE SU CALIDAD DE:';
+                introEl.textContent = 'PADRE/MADRE/APODERADO/APODERADA DE';
+                reasonTitleEl.innerHTML = '';
+                actionEl.innerHTML = `DEBERÁ DE APERSONARSE A LA <span id="preview-institution-inline" class="highlight-inline">${institution}</span> A FIN DE BRINDAR LA:`;
+                reasonDetailEl.innerHTML = '<div class="centered-large-text bg-yellow blue-text">ATENCIÓN AL PADRE DE FAMILIA</div>';
+            }
+        } else {
+            studentsListEl.classList.remove('bg-yellow');
+            studentsListEl.classList.add('bg-gray');
+            
+            // Demás áreas (Los 2 nuevos formatos)
+            if (model === 'atencion_padre') {
+                greetingEl.textContent = 'POR LA PRESENTE SE HACE DE SU CONOCIMIENTO QUE SU CALIDAD DE:';
+                introEl.textContent = 'PADRE/MADRE/APODERADO/APODERADA DE';
+                actionEl.innerHTML = `DEBERÁ DE APERSONARSE A LA <span id="preview-institution-inline" class="highlight-inline">${institution}</span> A FIN DE BRINDAR LA:`;
+                reasonTitleEl.innerHTML = '';
+                reasonDetailEl.innerHTML = '<div class="centered-large-text bg-gray blue-text">ATENCIÓN AL PADRE DE FAMILIA</div>';
+            } else {
+                greetingEl.textContent = 'SEÑOR/SEÑORA/APODERADO';
+                introEl.textContent = 'POR LA PRESENTE SE HACE DE SU CONOCIMIENTO QUE SU MENOR HIJO:';
+                actionEl.innerHTML = `DEBERÁ DE APERSONARSE A LA <span id="preview-institution-inline" class="highlight-inline">${institution}</span> A FIN DE BRINDAR:`;
+                reasonTitleEl.innerHTML = '<div class="bg-cyan" style="text-align: center; padding: 5px;"><span class="green-text title-large">ATENCIÓN AL ESTUDIANTE EN:</span></div>';
+                reasonDetailEl.innerHTML = `<div class="centered-large-text bg-gray"><span class="green-text">REFUERZO ESCOLAR</span> &nbsp;&nbsp;&nbsp;&nbsp; <span class="blue-text">${area ? area.toUpperCase() : '____'}</span></div>`;
+            }
         }
+
         updateAllPreviews();
     }
 
-    citationTypeInput.addEventListener('change', updateDynamicTexts);
+    areaInput.addEventListener('change', updateDynamicTexts);
+    citationModelInput.addEventListener('change', updateDynamicTexts);
+    shiftInput.addEventListener('change', updateDynamicTexts);
 
     inputsToWatch.forEach(item => {
         item.input.addEventListener('input', updateAllPreviews);
     });
-
-    // Manejo de diseño
-    designStyleSelect.addEventListener('change', (e) => {
-        citationDocument.className = 'citation-document style-' + e.target.value;
-        checkSignatureVisibility();
-    });
-
-
-    // Plantillas rápidas
-    templateBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            reasonInput.value = btn.getAttribute('data-text');
-            previewReason.textContent = reasonInput.value;
-            checkSignatureVisibility();
-        });
-    });
-
-    // Validar visibilidad de firma
-    function checkSignatureVisibility() {
-        const text = reasonInput.value.toLowerCase();
-        // Si el motivo incluye palabras clave sobre padres o si se usó la plantilla
-        if (text.includes('padres') || text.includes('apoderado')) {
-            citationDocument.classList.remove('no-signature');
-        } else {
-            citationDocument.classList.add('no-signature');
-        }
-    }
-    
-    // Llamada inicial
-    checkSignatureVisibility();
-
-    // Actualizar firma al escribir motivo
-    reasonInput.addEventListener('input', checkSignatureVisibility);
 
     // Agregar Estudiante
     addStudentBtn.addEventListener('click', () => {
@@ -225,9 +227,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let validStudentsCount = 0;
         inputs.forEach(input => {
             if (input.value.trim() !== '') {
-                const li = document.createElement('li');
-                li.textContent = input.value;
-                previewStudentsList.appendChild(li);
+                const div = document.createElement('div');
+                div.textContent = '* ' + input.value;
+                previewStudentsList.appendChild(div);
                 hasStudents = true;
                 validStudentsCount++;
             }
@@ -243,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!hasStudents) {
-            previewStudentsList.innerHTML = '<li style="color: #999;">Agregue estudiantes en el formulario...</li>';
+            previewStudentsList.innerHTML = '<div style="color: #999;">Agregue estudiantes en el formulario...</div>';
         }
     }
 
@@ -285,13 +287,29 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${name}_${dateStr}`;
     }
 
-    // Imprimir
-    btnPrint.addEventListener('click', () => {
-        window.print();
-    });
+    function validateForm() {
+        if (!form.checkValidity()) {
+            alert("Faltan llenar datos. Por favor, complete todos los campos requeridos en el formulario.");
+            form.reportValidity();
+            return false;
+        }
+        
+        const inputs = studentsContainer.querySelectorAll(".student-input");
+        let hasStudents = false;
+        inputs.forEach(input => {
+            if (input.value.trim() !== "") hasStudents = true;
+        });
+
+        if (!hasStudents) {
+            alert("Faltan llenar datos. Por favor, ingrese al menos el nombre de un estudiante.");
+            return false;
+        }
+        return true;
+    }
 
     // Descargar PDF usando html2pdf.js
     btnPdf.addEventListener('click', () => {
+        if (!validateForm()) return;
         const element = document.getElementById('citation-document');
         
         // Guardamos el estilo actual para restaurarlo después
@@ -318,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Descargar Imagen usando html2canvas
     btnImage.addEventListener('click', () => {
+        if (!validateForm()) return;
         const element = document.getElementById('citation-document');
         
         // Guardamos el estilo actual y aplicamos el de exportación compacta
@@ -345,6 +364,62 @@ document.addEventListener('DOMContentLoaded', () => {
             element.classList.remove('compact-export');
         });
     });
+
+
+    // Compartir por WhatsApp
+    const btnWhatsApp = document.getElementById("btn-whatsapp");
+    if (btnWhatsApp) {
+        btnWhatsApp.addEventListener("click", () => {
+        if (!validateForm()) return;
+            const element = document.getElementById("citation-document");
+            
+            const originalBoxShadow = element.style.boxShadow;
+            element.style.boxShadow = "none";
+            element.classList.add("compact-export"); 
+            window.scrollTo(0, 0);
+
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                scrollY: 0,
+                backgroundColor: "#ffffff"
+            }).then(canvas => {
+                element.style.boxShadow = originalBoxShadow;
+                element.classList.remove("compact-export");
+
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], `${getFilename()}.png`, { type: "image/png" });
+                    
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: "Citación",
+                                text: "Adjunto citación generada."
+                            });
+                        } catch (error) {
+                            console.error("Error compartiendo:", error);
+                        }
+                    } else {
+                        // Fallback: Copy to clipboard
+                        try {
+                            const item = new ClipboardItem({ "image/png": blob });
+                            await navigator.clipboard.write([item]);
+                            alert("¡Imagen copiada al portapapeles! Abre WhatsApp Web y presiona (Ctrl+V o Cmd+V) en el chat para pegarla y enviarla.");
+                        } catch (err) {
+                            alert("No se pudo copiar la imagen automáticamente. Por favor descarga la imagen primero o usa un dispositivo móvil.");
+                            console.error(err);
+                        }
+                    }
+                }, "image/png");
+            }).catch(err => {
+                element.style.boxShadow = originalBoxShadow;
+                element.classList.remove("compact-export");
+                console.error(err);
+                alert("Ocurrió un error al generar la imagen para WhatsApp.");
+            });
+        });
+    }
 
     // Llamada inicial para cargar los valores por defecto (ej. Institución)
     btnGenerate.click();
